@@ -1,34 +1,72 @@
 package it.unibo.ddd.exercises.money;
 
+import it.unibo.ddd.exercises.money.impl.CurrencyImpl;
+import it.unibo.ddd.exercises.money.impl.MoneyFactoryImpl;
+import it.unibo.ddd.exercises.money.impl.MoneyImpl;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-// TODO: remove @Disabled once the types under test exist (cf. step 2 of exercise1/walkthrough.md)
-@Disabled("TODO: not implemented yet")
 class MoneyTest {
+    final MoneyFactory moneyFactory = new MoneyFactoryImpl();
+
+    private Money eur(String amount) {
+        return moneyFactory.makeMoney(new BigDecimal(amount), moneyFactory.makeCurrencyEUR());
+    }
+
     @Test
     void equalAmountsAreEqual() {
-        // TODO: 10.5 EUR equals 10.50 EUR, but not 10.50 USD
-        fail("TODO");
+        String amount = "10.50";
+        Money moneyEUR1 = eur("10.5");
+        Money moneyEUR2 = eur(amount);
+        Money moneyUSD = moneyFactory.makeMoney(
+            new BigDecimal(amount),
+            moneyFactory.makeCurrencyUSD()
+        );
+        assertEquals(moneyEUR1, moneyEUR2);
+        assertNotEquals(moneyEUR1, moneyUSD);
     }
 
     @Test
     void operationsReturnNewValues() {
-        // TODO: summing or multiplying returns a new value, leaving the original one unchanged
-        fail("TODO");
+        String amount = "10";
+        Money money1 = eur(amount);
+        Money money2 = eur("2.5");
+        assertEquals(eur("25"), money1.multiply(money2));
+        assertEquals(eur("12.5"), money1.add(money2));
+        assertEquals(eur(amount), money1);
     }
 
     @Test
     void cannotSumDifferentCurrencies() {
-        // TODO: summing EUR and USD fails
-        fail("TODO");
+        assertThrows(IllegalArgumentException.class, () -> {
+            Money money1 = eur("10.5");
+            Money money2 = moneyFactory.makeMoney(new BigDecimal("10.5"), moneyFactory.makeCurrencyUSD());
+            money1.add(money2);
+        });
     }
 
     @Test
     void exchangeRatesConvertFromSourceToDestination() {
-        // TODO: a EUR to USD rate converts EUR amounts, and rejects USD ones
-        fail("TODO");
+        ExchangeRate er = moneyFactory.makeRate(
+            moneyFactory.makeCurrencyEUR(),
+            moneyFactory.makeCurrencyUSD(),
+            Instant.now(),
+            new BigDecimal("1.10")
+        );
+        Money moneyEUR = eur("10.0");
+        Money moneyUSD = moneyFactory.makeMoney(
+            new BigDecimal("1.0"),
+            moneyFactory.makeCurrencyUSD()
+        );
+        assertEquals(
+            er.convert(moneyEUR),
+            moneyFactory.makeMoney(new BigDecimal("11.0"), moneyFactory.makeCurrencyUSD())
+        );
+        assertThrows(IllegalArgumentException.class, () -> er.convert(moneyUSD));
     }
 }
