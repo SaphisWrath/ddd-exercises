@@ -5,8 +5,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-// TODO: remove @Disabled once the types under test exist (cf. step 4 of exercise1/walkthrough.md)
-@Disabled("TODO: not implemented yet")
 class OrdersTest {
     @Test
     void factoryAssignsFreshIdsAndCurrentTime() {
